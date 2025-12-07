@@ -211,26 +211,27 @@ class GrokClient(APIClient):
 
 # Model registry - maps model identifiers to (client_class, model_name)
 MODEL_REGISTRY = {
-    # Claude models
-    "claude-sonnet-4.5": (ClaudeClient, "claude-sonnet-4.5-20250514"),
-    "claude-sonnet-4": (ClaudeClient, "claude-sonnet-4-20250514"),
-    "claude-opus-4": (ClaudeClient, "claude-opus-4-20250514"),
+    # Claude models (Anthropic)
+    "claude-3-5-sonnet": (ClaudeClient, "claude-3-5-sonnet-20241022"),
+    "claude-3-opus": (ClaudeClient, "claude-3-opus-20240229"),
+    "claude-3-sonnet": (ClaudeClient, "claude-3-sonnet-20240229"),
+    "claude-3-haiku": (ClaudeClient, "claude-3-haiku-20240307"),
 
-    # Gemini models
+    # Gemini models (Google)
+    "gemini-1.5-flash": (GeminiClient, "gemini-1.5-flash-latest"),
+    "gemini-1.5-pro": (GeminiClient, "gemini-1.5-pro-latest"),
     "gemini-2.0-flash": (GeminiClient, "gemini-2.0-flash-exp"),
-    "gemini-2.5-flash": (GeminiClient, "gemini-2.5-flash"),
-    "gemini-3-pro": (GeminiClient, "gemini-3-pro-preview"),
 
     # OpenAI models
     "gpt-4o": (OpenAIClient, "gpt-4o"),
     "gpt-4o-mini": (OpenAIClient, "gpt-4o-mini"),
-    "gpt-5.1": (OpenAIClient, "gpt-5.1"),
     "o1": (OpenAIClient, "o1"),
     "o1-mini": (OpenAIClient, "o1-mini"),
+    "o3-mini": (OpenAIClient, "o3-mini"),
 
-    # Grok models
+    # Grok models (xAI)
     "grok-beta": (GrokClient, "grok-beta"),
-    "grok-4": (GrokClient, "grok-4"),
+    "grok-2-1212": (GrokClient, "grok-2-1212"),
 }
 
 # API key mapping

@@ -90,19 +90,19 @@ To change the council members or chairman model:
 1. Edit `backend/config.py`:
    ```python
    # Available models:
-   # Claude: claude-sonnet-4.5, claude-sonnet-4, claude-opus-4
-   # Gemini: gemini-2.0-flash, gemini-2.5-flash, gemini-3-pro
-   # OpenAI: gpt-4o, gpt-4o-mini, gpt-5.1, o1, o1-mini
-   # Grok: grok-beta, grok-4
+   # Claude: claude-3-5-sonnet, claude-3-opus, claude-3-sonnet, claude-3-haiku
+   # Gemini: gemini-1.5-flash, gemini-1.5-pro, gemini-2.0-flash
+   # OpenAI: gpt-4o, gpt-4o-mini, o1, o1-mini, o3-mini
+   # Grok: grok-beta, grok-2-1212
 
    COUNCIL_MODELS = [
        "gpt-4o",
-       "gemini-2.0-flash",
-       "claude-sonnet-4.5",
+       "gemini-1.5-flash",
+       "claude-3-5-sonnet",
        "grok-beta",
    ]
 
-   CHAIRMAN_MODEL = "gemini-2.0-flash"
+   CHAIRMAN_MODEL = "gemini-1.5-flash"
    ```
 
 2. Commit and push:
