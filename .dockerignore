@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[oc]
+*.so
+*.egg-info
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+
+# Node
+frontend/node_modules/
+frontend/.vite/
+frontend/dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Data
+data/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Documentation (not needed in container)
+README.md
+CLAUDE.md
+header.jpg

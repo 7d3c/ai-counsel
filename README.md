@@ -85,3 +85,36 @@ Then open http://localhost:5173 in your browser.
 - **Frontend:** React + Vite, react-markdown for rendering
 - **Storage:** JSON files in `data/conversations/`
 - **Package Management:** uv for Python, npm for JavaScript
+
+## 🐳 Docker & Deployment
+
+### Quick Start with Docker
+
+```bash
+# Build and run with Docker Compose
+docker compose up
+```
+
+### Deploy to Railway.app
+
+This project is ready to deploy to Railway.app:
+
+1. Push your code to GitHub
+2. Create a new project on [Railway.app](https://railway.app/)
+3. Connect your repository
+4. Add `OPENROUTER_API_KEY` environment variable
+5. Deploy! 🚀
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Local Docker Testing
+
+```bash
+# Build the image
+docker build -t llm-council .
+
+# Run the container
+docker run -p 8001:8001 -e OPENROUTER_API_KEY=your_key_here llm-council
+```
+
+Access the app at `http://localhost:8001`

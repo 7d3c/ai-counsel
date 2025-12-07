@@ -2,7 +2,9 @@
  * API client for the LLM Council backend.
  */
 
-const API_BASE = 'http://localhost:8001';
+// Use relative URLs in production (when served from same origin)
+// Use localhost:8001 in development
+const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:8001';
 
 export const api = {
   /**
