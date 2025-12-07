@@ -33,7 +33,7 @@ class ClaudeClient(APIClient):
     async def query(
         self,
         messages: List[Dict[str, str]],
-        model: str = "claude-sonnet-4.5-20250514",
+        model: str = "claude-3-5-sonnet-20241022",
         timeout: float = 120.0
     ) -> Optional[Dict[str, Any]]:
         """Query Claude API."""
@@ -65,6 +65,9 @@ class ClaudeClient(APIClient):
                     'content': content,
                 }
 
+        except httpx.HTTPStatusError as e:
+            print(f"Error querying Claude API: {e.response.status_code} {e.response.text}")
+            return None
         except Exception as e:
             print(f"Error querying Claude API: {e}")
             return None
@@ -118,8 +121,11 @@ class GeminiClient(APIClient):
                     'content': content,
                 }
 
+        except httpx.HTTPStatusError as e:
+            print(f"Error querying Gemini API ({model}): {e.response.status_code} - {e.response.text[:200]}")
+            return None
         except Exception as e:
-            print(f"Error querying Gemini API: {e}")
+            print(f"Error querying Gemini API ({model}): {e}")
             return None
 
 
@@ -204,8 +210,11 @@ class GrokClient(APIClient):
                     'content': content,
                 }
 
+        except httpx.HTTPStatusError as e:
+            print(f"Error querying Grok API ({model}): {e.response.status_code} - {e.response.text[:200]}")
+            return None
         except Exception as e:
-            print(f"Error querying Grok API: {e}")
+            print(f"Error querying Grok API ({model}): {e}")
             return None
 
 
@@ -260,15 +269,33 @@ async def query_model(
         Response dict with 'content', or None if failed
     """
     if model_id not in MODEL_REGISTRY:
-        print(f"Unknown model: {model_id}")
+        print(f"❌ Unknown model: {model_id}")
         return None
 
     client_class, model_name = MODEL_REGISTRY[model_id]
     api_key = API_KEY_MAP[client_class]
 
     if not api_key:
-        print(f"No API key configured for {client_class.__name__}")
+        print(f"❌ No API key configured for {client_class.__name__} (model: {model_id})")
+        print(f"   Please set the environment variable in Railway")
         return None
+
+    # Validate API key format
+    if client_class == GeminiClient and not api_key.startswith("AI"):
+        print(f"⚠️  Warning: Gemini API key looks invalid (should start with 'AIza...')")
+        print(f"   Current key: {api_key[:10]}...")
+
+    if client_class == ClaudeClient and not api_key.startswith("sk-ant-"):
+        print(f"⚠️  Warning: Claude API key looks invalid (should start with 'sk-ant-')")
+        print(f"   Current key: {api_key[:10]}...")
+
+    if client_class == OpenAIClient and not (api_key.startswith("sk-") or api_key.startswith("sk-proj-")):
+        print(f"⚠️  Warning: OpenAI API key looks invalid (should start with 'sk-' or 'sk-proj-')")
+        print(f"   Current key: {api_key[:10]}...")
+
+    if client_class == GrokClient and not api_key.startswith("xai-"):
+        print(f"⚠️  Warning: Grok API key looks invalid (should start with 'xai-')")
+        print(f"   Current key: {api_key[:10]}...")
 
     client = client_class(api_key)
     return await client.query(messages, model=model_name, timeout=timeout)
