@@ -6,7 +6,11 @@ This guide covers deploying LLM Council to Railway.app using Docker.
 
 - Git repository access
 - [Railway.app](https://railway.app/) account (free tier available)
-- OpenRouter API key ([get one here](https://openrouter.ai/))
+- API keys for the LLM providers you want to use:
+  - [Anthropic Claude](https://console.anthropic.com/)
+  - [Google Gemini](https://aistudio.google.com/app/apikey)
+  - [OpenAI](https://platform.openai.com/api-keys)
+  - [xAI Grok](https://console.x.ai/)
 
 ## 🚀 Railway.app Deployment
 
@@ -32,11 +36,15 @@ git push
 In your Railway project dashboard:
 
 1. Go to **"Variables"** tab
-2. Add the following environment variable:
+2. Add the API keys for the models you want to use:
    ```
-   OPENROUTER_API_KEY=your_openrouter_api_key_here
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   GOOGLE_API_KEY=your_google_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here
+   XAI_API_KEY=your_xai_api_key_here
    ```
-3. Click **"Add"** to save
+   Note: You don't need all keys, only for the models you configured in `backend/config.py`
+3. Click **"Add"** for each variable
 
 ### Step 4: Deploy
 
@@ -68,7 +76,10 @@ Available environment variables:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `OPENROUTER_API_KEY` | ✅ Yes | - | Your OpenRouter API key |
+| `ANTHROPIC_API_KEY` | Conditional | - | Anthropic Claude API key (required if using Claude models) |
+| `GOOGLE_API_KEY` | Conditional | - | Google Gemini API key (required if using Gemini models) |
+| `OPENAI_API_KEY` | Conditional | - | OpenAI API key (required if using GPT models) |
+| `XAI_API_KEY` | Conditional | - | xAI Grok API key (required if using Grok models) |
 | `PORT` | No | 8001 | Server port (Railway sets this automatically) |
 | `ALLOWED_ORIGINS` | No | `*` | CORS allowed origins (comma-separated) |
 
@@ -78,14 +89,20 @@ To change the council members or chairman model:
 
 1. Edit `backend/config.py`:
    ```python
+   # Available models:
+   # Claude: claude-sonnet-4.5, claude-sonnet-4, claude-opus-4
+   # Gemini: gemini-2.0-flash, gemini-2.5-flash, gemini-3-pro
+   # OpenAI: gpt-4o, gpt-4o-mini, gpt-5.1, o1, o1-mini
+   # Grok: grok-beta, grok-4
+
    COUNCIL_MODELS = [
-       "openai/gpt-5.1",
-       "google/gemini-3-pro-preview",
-       "anthropic/claude-sonnet-4.5",
-       "x-ai/grok-4",
+       "gpt-4o",
+       "gemini-2.0-flash",
+       "claude-sonnet-4.5",
+       "grok-beta",
    ]
 
-   CHAIRMAN_MODEL = "google/gemini-3-pro-preview"
+   CHAIRMAN_MODEL = "gemini-2.0-flash"
    ```
 
 2. Commit and push:
@@ -107,17 +124,25 @@ Before deploying, test locally using Docker:
 # Build the Docker image
 docker build -t llm-council .
 
-# Run with environment variables
+# Run with environment variables (add only the keys you need)
 docker run -p 8001:8001 \
-  -e OPENROUTER_API_KEY=your_api_key_here \
+  -e ANTHROPIC_API_KEY=your_anthropic_key \
+  -e GOOGLE_API_KEY=your_google_key \
+  -e OPENAI_API_KEY=your_openai_key \
+  -e XAI_API_KEY=your_xai_key \
   llm-council
 ```
 
 ### Or use Docker Compose
 
 ```bash
-# Create .env file
-echo "OPENROUTER_API_KEY=your_api_key_here" > .env
+# Create .env file with your API keys
+cat > .env <<EOF
+ANTHROPIC_API_KEY=your_anthropic_key
+GOOGLE_API_KEY=your_google_key
+OPENAI_API_KEY=your_openai_key
+XAI_API_KEY=your_xai_key
+EOF
 
 # Start the application
 docker compose up
@@ -189,8 +214,8 @@ Current implementation stores conversations in `data/conversations/` which will 
 **Issue:** App starts but crashes immediately
 
 **Solution:**
-- Check Railway logs: likely missing `OPENROUTER_API_KEY`
-- Verify environment variables are set correctly
+- Check Railway logs: likely missing API keys
+- Verify environment variables are set correctly (at least one API key for each model you're using)
 - Check health endpoint: `/health`
 
 ### CORS Errors
@@ -208,19 +233,36 @@ Current implementation stores conversations in `data/conversations/` which will 
 **Solution:**
 - This is expected - the app makes multiple API calls to different models
 - Consider reducing number of council members in `backend/config.py`
-- Check OpenRouter status for model availability
+- Check individual API provider status pages for model availability
 
 ## 📈 Cost Estimation
 
-Railway.app:
+**Railway.app:**
 - **Free tier:** $5 in credits per month
 - **Hobby plan:** $5/month after credits expire
 - **Usage-based** after that
 
-OpenRouter API:
-- **Varies by model** - check [OpenRouter pricing](https://openrouter.ai/models)
-- **Typical cost:** $0.01-0.10 per council session (depends on models used)
-- **Recommendation:** Set spending limits on OpenRouter
+**API Costs:**
+Costs vary significantly by provider and model. Approximate pricing per 1M tokens:
+
+- **Claude (Anthropic):**
+  - Claude Sonnet 4.5: $3 input / $15 output
+  - Claude Opus 4: $15 input / $75 output
+
+- **Gemini (Google):**
+  - Gemini 2.0 Flash: $0.075 input / $0.30 output (free tier available!)
+  - Gemini 3 Pro: $1.25 input / $5 output
+
+- **OpenAI:**
+  - GPT-4o: $2.50 input / $10 output
+  - GPT-5.1: Pricing TBD
+
+- **Grok (xAI):**
+  - Grok Beta: Pricing varies, check [xAI pricing](https://x.ai/pricing)
+
+**Typical cost per council session:** $0.02-0.20 depending on models used and response length
+
+**Recommendation:** Start with Gemini 2.0 Flash (free tier) to test, then add other models as needed
 
 ## 🔄 CI/CD
 
@@ -244,7 +286,10 @@ git push
 
 - [Railway Documentation](https://docs.railway.app/)
 - [Docker Documentation](https://docs.docker.com/)
-- [OpenRouter API Docs](https://openrouter.ai/docs)
+- [Anthropic Claude API Docs](https://docs.anthropic.com/)
+- [Google Gemini API Docs](https://ai.google.dev/docs)
+- [OpenAI API Docs](https://platform.openai.com/docs)
+- [xAI Grok API Docs](https://docs.x.ai/)
 - [FastAPI Deployment](https://fastapi.tiangolo.com/deployment/)
 
 ## 💡 Next Steps
@@ -256,7 +301,7 @@ After deployment:
 3. ✅ Configure custom domain
 4. ✅ Consider adding persistent storage
 5. ✅ Set up backups for conversations (if needed)
-6. ✅ Monitor API costs on OpenRouter
+6. ✅ Monitor API costs on each provider's dashboard
 
 ---
 

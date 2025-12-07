@@ -32,29 +32,45 @@ npm install
 cd ..
 ```
 
-### 2. Configure API Key
+### 2. Configure API Keys
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root with your API keys:
 
 ```bash
-OPENROUTER_API_KEY=sk-or-v1-...
+# Add API keys for the providers you want to use
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=AI...
+OPENAI_API_KEY=sk-...
+XAI_API_KEY=xai-...
 ```
 
-Get your API key at [openrouter.ai](https://openrouter.ai/). Make sure to purchase the credits you need, or sign up for automatic top up.
+Get your API keys:
+- [Anthropic Claude](https://console.anthropic.com/)
+- [Google Gemini](https://aistudio.google.com/app/apikey)
+- [OpenAI](https://platform.openai.com/api-keys)
+- [xAI Grok](https://console.x.ai/)
+
+You don't need all keys, only for the models you configured in `backend/config.py`.
 
 ### 3. Configure Models (Optional)
 
 Edit `backend/config.py` to customize the council:
 
 ```python
+# Available models:
+# Claude: claude-sonnet-4.5, claude-sonnet-4, claude-opus-4
+# Gemini: gemini-2.0-flash, gemini-2.5-flash, gemini-3-pro
+# OpenAI: gpt-4o, gpt-4o-mini, gpt-5.1, o1, o1-mini
+# Grok: grok-beta, grok-4
+
 COUNCIL_MODELS = [
-    "openai/gpt-5.1",
-    "google/gemini-3-pro-preview",
-    "anthropic/claude-sonnet-4.5",
-    "x-ai/grok-4",
+    "gpt-4o",
+    "gemini-2.0-flash",
+    "claude-sonnet-4.5",
+    "grok-beta",
 ]
 
-CHAIRMAN_MODEL = "google/gemini-3-pro-preview"
+CHAIRMAN_MODEL = "gemini-2.0-flash"
 ```
 
 ## Running the Application
@@ -81,7 +97,8 @@ Then open http://localhost:5173 in your browser.
 
 ## Tech Stack
 
-- **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API
+- **Backend:** FastAPI (Python 3.10+), async httpx
+- **LLM APIs:** Direct integration with Claude, Gemini, OpenAI, and Grok
 - **Frontend:** React + Vite, react-markdown for rendering
 - **Storage:** JSON files in `data/conversations/`
 - **Package Management:** uv for Python, npm for JavaScript
@@ -102,7 +119,7 @@ This project is ready to deploy to Railway.app:
 1. Push your code to GitHub
 2. Create a new project on [Railway.app](https://railway.app/)
 3. Connect your repository
-4. Add `OPENROUTER_API_KEY` environment variable
+4. Add environment variables for your API keys
 5. Deploy! 🚀
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
@@ -113,8 +130,13 @@ For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 # Build the image
 docker build -t llm-council .
 
-# Run the container
-docker run -p 8001:8001 -e OPENROUTER_API_KEY=your_key_here llm-council
+# Run the container (add only the keys you need)
+docker run -p 8001:8001 \
+  -e ANTHROPIC_API_KEY=your_key \
+  -e GOOGLE_API_KEY=your_key \
+  -e OPENAI_API_KEY=your_key \
+  -e XAI_API_KEY=your_key \
+  llm-council
 ```
 
 Access the app at `http://localhost:8001`
